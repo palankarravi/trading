@@ -33,16 +33,21 @@ import xlwings as xw
 from xlwings.constants import AutoFillType
 import xlsxwriter as wr 
 #from xlwings import range as xlrange
-file = xw.Book('book4.xlsx')
+
+file = xw.Book('oi.xlsx')
 sh1 = file.sheets("Sheet1")
 sh2 = file.sheets("Sheet2")
 rownum = 1
 colnum = 0
+atmColumn = None
+prevAtmColumn = None
 
 a=1
 
-cookie = '_ga=GA1.2.176340240.1650143938; nsit=wmVwpoMJDGbHg9r_TfmoNPbO; AKA_A2=A; ak_bmsc=9D4C981183F0ABF6EDBCEAA18B5F54A4~000000000000000000000000000000~YAAQDj/LFyyukvSAAQAAwsCWIA8V0op9J8DY9AxBryLkAW18mRLiBESyLEWyHDBpVsE3xZXg+KqqLd50VOntO8EZjI3hJst0o67XjjuxMvMlrEKKrlO6DOCGODe91NEf7iCPTIXOLqHwGP+Fi3TYWcIUqIgqwPF761GKDGuDhsjXCGr4SJXDgaP4fiakqoMkJ/pKRnQnvO29Bb6znk0TzQJX9SZT/zvjgNzxI+rX79tPUJFtPYVeD8EmBLxZglDVTxeoKSFFxEC6NoIneEkaaGxM3wrHp2jfH+yABd51Q34PoFWj2c2uXDHx3nhtQX/xzNq5BJcbm+zoQPguAPbI87+JCm9LsBPXaCI+rXaoooki8iWDzm9U4JZCYobWrKkgAbFcebEXeyaH0rqnG3VvT0RpMJk5X5j/6WmQCzBc8lj6DNTtiOtZg+eovccHJOFWHPyJ4maISg64h0np5zrefUzeMvXLVT1jS/l8mwUQL0gVP8oJRkBYBTwaHkGZDw==; nseappid=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcGkubnNlIiwiYXVkIjoiYXBpLm5zZSIsImlhdCI6MTY1NDEwOTE2OCwiZXhwIjoxNjU0MTEyNzY4fQ.1Q2l0nQw04NYmtEGuI6eFHq4ZJkjBn9v708WmvsCKQU; RT="z=1&dm=nseindia.com&si=ca6b0f71-5a98-4dbb-aa81-c35b6aeea104&ss=l3vxvugb&sl=1&tt=2iz&bcn=%2F%2F684d0d44.akstat.io%2F"; bm_sv=AEF532EB2C24D9C71D76F70D6834E08F~YAAQDj/LF4aukvSAAQAAS+WWIA9rBvgZYcwalxRvYv2DpFiLbrAA1gaO94bsGob2+reXQzYrD+h80NRh61+JeSOOxnNRfgRKt9BbIdXYJ9v10guKFFUmzd6rnyEWzL5fZJWSabCinGFIXXWrWvWXUJ/2ytJt9HConQlhGjdV3Xfm1MbcXlGp3Woh7T6ReU5xOXPibBI8ZS1Mxn4q0bHKXdE9QVeapmcBQEKcYzSmcM7M7z6DimUHahS5BOprAhQHjcI=~1' 
-    
+cookie = '_ga=GA1.2.176340240.1650143938; arp_scroll_position=141; nsit=UQyyffPlSXC1GL91-GLC3IYH; AKA_A2=A; nseappid=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcGkubnNlIiwiYXVkIjoiYXBpLm5zZSIsImlhdCI6MTY1NDEyNDIyNSwiZXhwIjoxNjU0MTI3ODI1fQ.F1DrR8JwHLT7P8147T9iFjqhh6sKLr2or7bxVPQgj-w; ak_bmsc=77B1AD9E26302C5A7B32E87DB397437E~000000000000000000000000000000~YAAQBNcLF2kP8/OAAQAAnqV8IQ+EXPz1ZgeogEJ5QRtC57pKgdPZvUbZP3G2aQU3wtyJbszOXRz3e/CKA0fZ9NQeWtyBPwDuCI68AVoKS7+Vs4W3nNGNFqMZYEoHGJHfhcn1CJdUZANHJ0LVrn2LccdJ6yo8zB6tbQLTNliKCBGngV6eeMAKvzVBmHCSzzGIBI9ahyNV92emIx7Se2QhVCEGnX0dopbuO0czAXwd6M9O99oPlzGkzQPM+KovHJ5iEFVFe8592tXnB1ewdNyxSb+YcRTzHcwk9g8X00UwmbBxhscLLU6Qqt0X+ZfcAnTNckroDyXAX/ROVAxTx44n/WVZvOnH0UakAb8PgbtAWEoODXfc9uiLajfiVidS1II0XGOQUYy/X8DziDUm1yZeHH0D4gq3kZ9oUb6QU1RVMIMNhFcgJ2mpzXgyTa7Ar6GVeK8toDui93AlsP+ojPtUOobypNZps24aN4B/wMWywdHN; RT="z=1&dm=nseindia.com&si=ca6b0f71-5a98-4dbb-aa81-c35b6aeea104&ss=l3w599rp&sl=0&tt=0&bcn=%2F%2F684d0d4c.akstat.io%2F"; bm_sv=BE70E68C35CEA860AA602FC6FCA3644E~YAAQBNcLF20P8/OAAQAADKh8IQ8WfSJCZArZx5Aawh8yz8PIz/8cYkaRZ4mlXbVxvZQ6bLipobOsSKsgNYwrqHJSHVSK8Z/3ZRj+LOT9pOLkGVL38G9X1+Gpp8QnvBoGuQ2ZkfpZaTpYh3RokYavvFq6HSLfSuWnOwzIn9cPTrhfPQ+XYwkUqnUBSdF/zkAUrCAtIstb5xrs9xUWN2NPRGAIzakiDuJuREWpUvodSSSlu628qlE0WyuOdfJGDNFZcwo=~1' 
+
+
+# This function is for countdown timer    
 def timeCountdown(t):
     while t:
         mins, secs = divmod(t, 60)
@@ -52,9 +57,14 @@ def timeCountdown(t):
         t -= 1
     print('\n')
 
+
+# This function pulls the option chain data for selected symbol
 def pullOptionChain(symbol):
     try:
-        url = 'https://www.nseindia.com/api/option-chain-indices?symbol=' + symbol 
+        if symbol == 'NIFTY' or symbol == 'BANKNIFTY':
+            url = 'https://www.nseindia.com/api/option-chain-indices?symbol=' + symbol
+        else:
+            url = 'https://www.nseindia.com/api/option-chain-equities?symbol=' + symbol 
         headers = {
           "accept" : "*/*",
           "accept-encoding" : "gzip, deflate, br",
@@ -71,12 +81,21 @@ def pullOptionChain(symbol):
         print("\nUpdate the cookies from NSE website".upper())
         sys.exit(1)
 
-def writeOIDataToExcel(oi, colnum, underlying_price):
+
+# This function writes the OI data to Excel sheet
+def writeOIDataToExcel(oi, colnum, underlying_price, atmColumn):
     try:
         global rownum
-        if rownum == 1:
-            colname = wr.utility.xl_col_to_name(colnum)
-            cell = colname + str(rownum)
+        global prevAtmColumn
+        if prevAtmColumn != None:
+            colname = wr.utility.xl_col_to_name(prevAtmColumn)
+            cell = colname + str(1)
+            sh1.range(cell).clear()
+        if atmColumn != None:
+            #colname = wr.utility.xl_col_to_name(colnum)
+            #cell = colname + str(rownum)
+            colname = wr.utility.xl_col_to_name(atmColumn)
+            cell = colname + str(1)
             sh1.autofit('columns')
             #sh1.range(cell).api.autofill(sh1.range(cell), AutoFillType.xlFillDefault)
             sh1.range(cell).color = (10, 220, 10)
@@ -84,11 +103,12 @@ def writeOIDataToExcel(oi, colnum, underlying_price):
             sh1.range(cell).font.size = 16
             sh1.range(cell).value=underlying_price
             sh1.range(cell).row_height = 30
-            rownum = rownum + 1
+            prevAtmColumn = atmColumn
+            #rownum = rownum + 1
             
         if rownum == 2 and colnum == 0:
             for x in oi.values():
-                print(str(x['strikeprice']))
+                #print(str(x['strikeprice']))
                 colname = wr.utility.xl_col_to_name(colnum)
                 #print(colname)
                 #print(colname + str(rownum))
@@ -102,7 +122,7 @@ def writeOIDataToExcel(oi, colnum, underlying_price):
                 #sh1.range(cell).api.HorizontalAlignment = -4108
                 sh1.range(cell).value=str(x['strikeprice'])
                 colnum = colnum + 1 
-        else: 
+        elif rownum > 2: 
             print("Writing oi data to excel")
             colnum = 0
             for x in oi.values():
@@ -122,8 +142,41 @@ def writeOIDataToExcel(oi, colnum, underlying_price):
         print("Writing to Excel Failed with Exception : " + str(e))
         sys.exit(1)
 
-#def underlyingPriceRoundedToNearestFifty
 
+# This function gets the closest price to the underlying price which is the ATM price
+def closestValueInList(strike_prices, underlying_price):
+    try:
+        return (min(strike_prices, key=lambda x:abs(x-underlying_price)))
+    except Exception as e:
+        print("ATM Price - Getting closest value in strikePrices list failed with Exception : " + str(e))
+        sys.exit(1)
+
+
+# This function gets the column number which has the ATM price
+def getColumnIndexInExcelHavingValue(sh1, atmPrice, strikePriceList):
+    try:
+        for col in range(0, len(strikePriceList)):
+            cell = sh1.range('{}{}'.format(wr.utility.xl_col_to_name(col), 2)).value
+            if cell == atmPrice:
+                return col
+    except Exception as e:
+        print("Getting column index in excel having value failed with Exception : " + str(e))
+        sys.exit(1)
+
+
+# hide few columns in Excel that are far from the ATM Price
+def hideColumnInExcel(sh1, atmPricecolnum):
+    try:
+        toHideColumns = 10
+        for col in range(0, atmPricecolnum - toHideColumns):
+            sh1.range('{}{}'.format(wr.utility.xl_col_to_name(col), 2)).api.EntireColumn.Hidden = True
+            
+    except Exception as e:
+        print("Hiding columns in excel failed with Exception : " + str(e))
+        sys.exit(1)
+
+
+# Loop starts here
 while True:
     try: 
         data = pullOptionChain(sym)
@@ -134,9 +187,11 @@ while True:
             print("Got Response from NSE")
             #print(json.dumps(data, indent= 4))
             exp_list = data['records']['expiryDates']
-            underlying_value = data['records']['data'][0]['PE']['underlyingValue']
-            print(underlying_value)
-            print(data['records']['strikePrices'])
+            underlying_value = data['records']['underlyingValue']
+            strikePriceList = data['records']['strikePrices']
+            atmPrice = closestValueInList(data['records']['strikePrices'], underlying_value)
+            print("symbol : " + sym.upper() + "\nUnderlying Price : " + str(underlying_value) + "\nATM Price : " + str(atmPrice))
+            #print(data['records']['strikePrices'])
             ce = {}
             pe = {}
             n = 0
@@ -208,12 +263,13 @@ while True:
             #print(json.dumps(oi, indent = 4))
             #print(type(oi[0]['openInterest']))
 
-            #xlwings ( option - 1 )
-            #TO-DO
-            #1.get ATM price  2.format columns    
-            writeOIDataToExcel(oi, colnum, underlying_value)
+            #xlwings ( option - 1 )  
+            writeOIDataToExcel(oi, colnum, underlying_value, atmColumn)
             rownum = rownum + 1  
-            
+            atmColumn = getColumnIndexInExcelHavingValue(sh1, atmPrice, strikePriceList)
+            #print("Column having ATM Value : " + str(atmColumn))
+            #TO-DO : Hide columns far from the ATM price  
+            #hideColumnInExcel(sh1, atmColumn)
             
             #xlwings ( options - 2)
             '''
@@ -265,10 +321,9 @@ while True:
                     colnum = colnum + 1
             my_wb.save("book3.xlsx") 
             rownum = rownum + 1       
-            '''        
-            #print(oi.values())
-
-            timeCountdown(10)
+            '''       
+            
+            timeCountdown(6)
             #time.sleep(180)
     
     
